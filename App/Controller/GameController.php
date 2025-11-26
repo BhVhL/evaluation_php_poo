@@ -30,9 +30,40 @@ class GameController extends AbstractController
      * Méthode pour ajouter un Jeu (Game)
      * @return mixed Retourne le template
      */
-    public function saveGame(): mixed 
+    public function addGame(): mixed 
     {
-        return "template avec la méthode render";
+        $data = [];
+        $console = $this->consoleRepository->findAllConsoles();
+        $data['console'] = $console;
+        
+        if (isset($_POST["submit"])) {
+            if (
+                !empty($_POST["title"]) &&
+                !empty($_POST["type"]) &&
+                !empty($_POST["publish_at"]) &&
+                !empty($_POST["id_console"])
+            ) {
+                $title = Tools::sanitize($_POST["title"]);
+                $type = Tools::sanitize($_POST["type"]);
+                $publish_at = Tools::sanitize($_POST["publish_at"]);
+                $id_console = Tools::sanitize($_POST["id_console"]);
+
+                $game = new Game();
+                $console = new Console();
+                $game->setTitle($title);
+                $game->setType($type);
+                $game->setPublishAt(new \DateTimeImmutable($publish_at));
+                $console->setId($id_console);
+                $game->setConsole($console);
+
+                $this->gameRepository->saveGame($game);
+                $data["valid"] = "Le jeu à bien été enregistrer à la base de données !\n";
+            } else {
+                $data["error"] = "Une erreur est survenue...";
+            }
+        }
+        
+        return $this->render("add_game", "Add game", $data);
     }
 
     /**
@@ -41,6 +72,11 @@ class GameController extends AbstractController
      */
     public function showAllGames(): mixed 
     {
-        return "template avec la méthode render";
+        $data = [];
+        $games = $this->gameRepository->findAllGames();
+        $data["games"] = $games;
+
+
+        return $this->render("show_all_games", "show all games", $data);
     }
 }

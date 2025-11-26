@@ -25,6 +25,16 @@ class ConsoleRepository
      */
     public function findAllConsoles(): array 
     {
-        return [];
+        $console = [];
+        try {
+            $sql = 'SELECT c.id, c.name, c.manufacturer FROM console c';
+            $req = $this->connect->prepare($sql);
+            $req->execute();
+            $console = $req->fetchAll(\PDO::FETCH_ASSOC);
+        } catch (\Exception $e) {
+            echo $e->getMessage();
+        }
+
+        return $console;
     }
 }
